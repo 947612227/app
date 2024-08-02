@@ -1,7 +1,6 @@
 package com.app.user.controller;
 
 import com.app.user.vo.UserVO;
-import com.app.user.dto.UserGetInfoRequest;
 import com.app.user.dto.UserRegisterRequest;
 import com.app.user.dto.UserUpdateRequest;
 import com.app.user.dto.ApiResponse;
