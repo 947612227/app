@@ -1,5 +1,6 @@
 package com.app.user.controller;
 
+import com.app.user.dto.UserGetInfoRequest;
 import com.app.user.dto.UserRegisterRequest;
 import com.app.user.dto.UserUpdateRequest;
 import com.app.user.dto.ApiResponse;
@@ -47,5 +48,14 @@ public class UserController {
         }
     }
 
+    @GetMapping("/info/detail/{userId}")
+    public ApiResponse getUserById(@PathVariable Long userId) {
+        try {
+            User user = userService.getUserInfo(userId);
+            return new ApiResponse(200, "User found", user);
+        } catch (Exception e) {
+            return new ApiResponse(403, e.getMessage(), null);
+        }
+    }
     // Other methods...
 }

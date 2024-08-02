@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserInfo(Long userId) throws Exception {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new Exception("User not found"));
+                .orElseThrow(() -> new Exception("用户不存在!"));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
                 user.setBirthday(birthday);
             }
         } catch (DateTimeParseException e) {
-            throw new Exception("Invalid date format for birthday");
+            throw new Exception("生日格式错误!应当为yyyy-MM-dd格式");
         }
 
         // Update other fields
