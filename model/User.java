@@ -5,6 +5,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
 public class User {
@@ -16,7 +17,18 @@ public class User {
     private String username;
     private String password;
     private LocalDate birthday; // Birthday field as LocalDate
-    private LocalDate createdAt; // CreatedAt field as LocalDate
+
+    private Date createdAt;
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
+
     private String status; // Status field
 
     private String nickname;
@@ -26,6 +38,19 @@ public class User {
     private String slogan;
 
     private String email;
+
+    private String countryCode;
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+
+
+
 
     public int getIsAdult() {
         return isAdult;
@@ -87,17 +112,19 @@ public class User {
         this.birthday = birthday;
     }
 
-    public LocalDate getCreatedAt() {
-        return createdAt;
-    }
+//    public LocalDate getCreatedAt() {
+//        return createdAt;
+//    }
 
     public String getStatus() {
         return status;
     }
 
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
-    }
+
+
+//    public void setCreatedAt(LocalDate createdAt) {
+//        this.createdAt = createdAt;
+//    }
 
     public void setStatus(String status) {
         this.status = status;
@@ -118,6 +145,8 @@ public class User {
     public void setNickname(String nickname) {
         this.nickname = nickname;
     }
+
+
 
     // Other getters and setters
 }

@@ -8,6 +8,25 @@ public class UserUpdateRequest {
     private String slogan;      // 个性签名
     private String nickname;    // 昵称
 
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    private String countryCode;
+    private String status;      // 用户状态，0表示正常，1表示禁用
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+
     // Getters and setters
     public String getAvatar() {
         return avatar;

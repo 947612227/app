@@ -1,11 +1,11 @@
 package com.app.user.service;
 
 import com.app.user.dto.UserUpdateRequest;
-import com.app.user.model.User;
+import com.app.user.vo.UserVO;
 
 public interface UserService {
-    User registerUser(String username, String password) throws Exception;
-    User getUserInfo(Long userId) throws Exception;
-    User updateUser(Long userId, UserUpdateRequest userUpdateRequest) throws Exception;
-    User loginUser(String username, String password) throws Exception;
+    UserVO registerUser(String username, String password) throws Exception;
+    UserVO getUserInfo(Long userId) throws Exception;
+    UserVO updateUser(Long userId, UserUpdateRequest userUpdateRequest) throws Exception;
+    UserVO loginUser(String username, String password) throws Exception;
 }

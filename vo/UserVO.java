@@ -1,6 +1,17 @@
 package com.app.user.vo;
 
 public class UserVO {
+    private Long id;
+    private String username;
+    private String avatar;
+    private String birthday;
+    private String countryCode;
+    private String createdAt;
+    private String email;
+    private String nickname;
+    private int isAdult;
+    private String slogan;
+    private String status;
     public Long getId() {
         return id;
     }
@@ -41,11 +52,11 @@ public class UserVO {
         this.countryCode = countryCode;
     }
 
-    public Long getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Long createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -89,17 +100,7 @@ public class UserVO {
         this.status = status;
     }
 
-    private Long id;
-    private String username;
-    private String avatar;
-    private String birthday;
-    private String countryCode;
-    private Long createdAt;
-    private String email;
-    private String nickname;
-    private int isAdult;
-    private String slogan;
-    private String status;
+
 
     // Getters and setters
     // ...
