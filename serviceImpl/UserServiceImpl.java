@@ -2,8 +2,11 @@ package com.app.user.serviceImpl;
 
 import com.app.user.dto.UserUpdateRequest;
 import com.app.user.model.User;
-import com.app.user.model.UserRepository;
+import com.app.user.repository.UserRepository;
+import com.app.user.model.UserToken;
+import com.app.user.repository.UserTokenRepository;
 import com.app.user.service.UserService;
+import com.app.user.util.JwtUtil;
 import com.app.user.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +20,15 @@ import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
-
     @Autowired
     private UserRepository userRepository;
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    @Autowired
+    private JwtUtil jwtUtil;
 
+    @Autowired
+    private UserTokenRepository userTokenRepository;
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public UserVO registerUser(String username, String password) throws Exception {
@@ -36,15 +42,73 @@ public class UserServiceImpl implements UserService {
         newUser.setStatus("ACTIVATED"); // Set the user status
         User savedUser = userRepository.save(newUser);
         savedUser.setCreatedAt(new Date());
-        return convertToVO(savedUser);
+
+        // Generate JWT token
+        String token = jwtUtil.generateToken(username);
+
+        // Save token to the database
+        UserToken userToken = new UserToken();
+        userToken.setToken(token);
+        userToken.setCreatedAt(new Date());
+        userToken.setUpdatedAt(new Date()); // Set updatedAt when creating
+        userToken.setUser(savedUser);
+        userTokenRepository.save(userToken);
+
+        // Convert user to UserVO and include the token
+        UserVO userVO = convertToVO(savedUser);
+        userVO.setToken(token);
+
+        return userVO;
     }
+
 
     @Override
     public UserVO getUserInfo(Long userId) throws Exception {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new Exception("用户不存在!"));
-        return convertToVO(user);
+        User user = userRepository.findById(userId).orElseThrow(() -> new Exception("用户不存在!"));
+        String token = jwtUtil.generateToken(user.getUsername());
+        // Convert user to UserVO and include the token
+        UserVO userVO = convertToVO(user);
+        userVO.setToken(token); // Set the token in UserVO
+
+        return userVO;
+//        return convertToVO(user);
     }
+
+    @Override
+    public UserVO loginUser(String username, String password) throws Exception {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (!optionalUser.isPresent() || !optionalUser.get().getPassword().equals(password)) {
+            throw new Exception("Invalid username or password");
+        }
+
+        User user = optionalUser.get();
+        String token = jwtUtil.generateToken(username);
+
+        // Find existing token for the user
+        UserToken existingToken = userTokenRepository.findByUser(user);
+
+        if (existingToken != null) {
+            // Update existing token
+            existingToken.setToken(token);
+            existingToken.setUpdatedAt(new Date()); // Update the timestamp
+            userTokenRepository.save(existingToken);
+        } else {
+            // Save new token
+            UserToken userToken = new UserToken();
+            userToken.setToken(token);
+            userToken.setCreatedAt(new Date());
+            userToken.setUpdatedAt(new Date()); // Set updatedAt when creating
+            userToken.setUser(user);
+            userTokenRepository.save(userToken);
+        }
+
+        // Convert user to UserVO and include the token
+        UserVO userVO = convertToVO(user);
+        userVO.setToken(token);
+
+        return userVO;
+    }
+
 
     @Override
     public UserVO updateUser(Long userId, UserUpdateRequest userUpdateRequest) throws Exception {
@@ -75,15 +139,6 @@ public class UserServiceImpl implements UserService {
         // Save the updated user and return the corresponding VO
         User updatedUser = userRepository.save(user);
         return convertToVO(updatedUser);
-    }
-
-    @Override
-    public UserVO loginUser(String username, String password) throws Exception {
-        Optional<User> optionalUser = userRepository.findByUsername(username);
-        if (!optionalUser.isPresent() || !optionalUser.get().getPassword().equals(password)) {
-            throw new Exception("Invalid username or password");
-        }
-        return convertToVO(optionalUser.get());
     }
 
     // Private helper method to convert User entity to UserVO

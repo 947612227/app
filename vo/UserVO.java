@@ -12,6 +12,16 @@ public class UserVO {
     private int isAdult;
     private String slogan;
     private String status;
+
+    private String token;
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
     public Long getId() {
         return id;
     }
@@ -101,7 +111,4 @@ public class UserVO {
     }
 
 
-
-    // Getters and setters
-    // ...
 }
