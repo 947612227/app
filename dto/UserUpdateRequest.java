@@ -8,6 +8,15 @@ public class UserUpdateRequest {
     private String slogan;      // 个性签名
     private String nickname;    // 昵称
 
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    private String token;
     public String getCountryCode() {
         return countryCode;
     }

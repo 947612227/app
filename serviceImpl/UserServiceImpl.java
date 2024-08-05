@@ -18,6 +18,10 @@ import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
@@ -40,8 +44,9 @@ public class UserServiceImpl implements UserService {
         newUser.setUsername(username);
         newUser.setPassword(password);
         newUser.setStatus("ACTIVATED"); // Set the user status
+        newUser.setCreatedAt(new Date()); // Set creation date
+
         User savedUser = userRepository.save(newUser);
-        savedUser.setCreatedAt(new Date());
 
         // Generate JWT token
         String token = jwtUtil.generateToken(username);
@@ -61,17 +66,14 @@ public class UserServiceImpl implements UserService {
         return userVO;
     }
 
-
     @Override
     public UserVO getUserInfo(Long userId) throws Exception {
-        User user = userRepository.findById(userId).orElseThrow(() -> new Exception("用户不存在!"));
-        String token = jwtUtil.generateToken(user.getUsername());
-        // Convert user to UserVO and include the token
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new Exception("用户不存在!"));
+        String token = jwtUtil.generateToken(user.getUsername()); // Optional based on your logic
         UserVO userVO = convertToVO(user);
         userVO.setToken(token); // Set the token in UserVO
-
         return userVO;
-//        return convertToVO(user);
     }
 
     @Override
@@ -109,13 +111,24 @@ public class UserServiceImpl implements UserService {
         return userVO;
     }
 
-
     @Override
-    public UserVO updateUser(Long userId, UserUpdateRequest userUpdateRequest) throws Exception {
+    public UserVO updateUser(Long userId, UserUpdateRequest userUpdateRequest, String token) throws Exception {
+        // 验证 token 是否有效
+        if (!jwtUtil.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "无效的Token");
+        }
+
+        // 从 token 中获取用户名
+        String usernameFromToken = jwtUtil.getUsernameFromToken(token);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new Exception("用户不存在!"));
 
-        // Convert birthday from String to LocalDate
+        // 确保 token 对应的用户是当前更新的用户
+        if (!user.getUsername().equals(usernameFromToken)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "无效的Token");
+        }
+
+        // 更新生日信息
         try {
             if (userUpdateRequest.getBirthday() != null && !userUpdateRequest.getBirthday().isEmpty()) {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -126,7 +139,7 @@ public class UserServiceImpl implements UserService {
             throw new Exception("生日格式错误!应当为yyyy-MM-dd格式");
         }
 
-        // Update other fields
+        // 更新其他字段
         user.setAvatar(userUpdateRequest.getAvatar());
         user.setEmail(userUpdateRequest.getEmail());
         user.setSlogan(userUpdateRequest.getSlogan());
@@ -134,11 +147,21 @@ public class UserServiceImpl implements UserService {
         user.setStatus(userUpdateRequest.getStatus());
         user.setCountryCode(userUpdateRequest.getCountryCode());
 
+        // 更新更新时间戳
+        user.setUpdatedAt(new Date());
 
-
-        // Save the updated user and return the corresponding VO
+        // 保存更新后的用户
         User updatedUser = userRepository.save(user);
-        return convertToVO(updatedUser);
+
+        // 获取现有 token
+        Optional<UserToken> userTokenOptional = userTokenRepository.findByUserId(userId);
+        String existingToken = userTokenOptional.map(UserToken::getToken).orElse(null);
+
+        // 转换为 VO 并设置 token
+        UserVO userVO = convertToVO(updatedUser);
+        userVO.setToken(existingToken);
+
+        return userVO;
     }
 
     // Private helper method to convert User entity to UserVO
@@ -158,5 +181,5 @@ public class UserServiceImpl implements UserService {
         userVO.setStatus(user.getStatus());
         return userVO;
     }
-
 }
+

@@ -19,6 +19,8 @@ public class User {
     private LocalDate birthday; // Birthday field as LocalDate
 
     private Date createdAt;
+    private Date updatedAt;
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -146,6 +148,9 @@ public class User {
         this.nickname = nickname;
     }
 
+    public void setUpdatedAt(Date date) {
+        this.updatedAt = date;
+    }
 
 
     // Other getters and setters
