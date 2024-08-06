@@ -78,4 +78,17 @@ public class UserController {
             return new ApiResponse(403, e.getMessage(), null);
         }
     }
+
+    @GetMapping("/info/detail")
+    public ApiResponse getUserInfo(@RequestHeader("token") String token) {
+        try {
+            // 使用 token 获取用户信息
+            UserVO userVO = userService.getUserInfoByToken(token);
+            return new ApiResponse(200, "User info retrieved successfully", userVO);
+        } catch (ResponseStatusException e) {
+            return new ApiResponse(e.getStatus().value(), e.getReason(), null);
+        } catch (Exception e) {
+            return new ApiResponse(500, e.getMessage(), null);
+        }
+    }
 }

@@ -8,4 +8,6 @@ public interface UserService {
     UserVO getUserInfo(Long userId) throws Exception;
     UserVO updateUser(Long userId, UserUpdateRequest userUpdateRequest, String token) throws Exception;
     UserVO loginUser(String username, String password) throws Exception;
+
+    UserVO getUserInfoByToken(String token) throws Exception;
 }

@@ -164,6 +164,24 @@ public class UserServiceImpl implements UserService {
         return userVO;
     }
 
+    @Override
+    public UserVO getUserInfoByToken(String token) throws Exception {
+        // 验证 token 是否有效
+        if (!jwtUtil.validateToken(token)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "无效的 Token");
+        }
+
+        // 从 token 中获取用户名
+        String username = jwtUtil.getUsernameFromToken(token);
+
+        // 查找用户
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "无效的 Token"));
+
+        // 将用户转换为 VO
+        return convertToVO(user);
+    }
+
     // Private helper method to convert User entity to UserVO
     private UserVO convertToVO(User user) {
         UserVO userVO = new UserVO();
